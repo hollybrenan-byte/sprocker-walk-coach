@@ -121,7 +121,7 @@ label {
 <div id="startScreen" class="card">
   <h2>🐾 Walk Coach</h2>
   <p>Structured 45-min sprocker walk system</p>
-  <button onclick="showChecklist()">Start Walk</button>
+  <button onclick="initAudio(); showChecklist()">Start Walk</button>
 </div>
 
 <div id="checklistScreen" class="card hidden">
@@ -159,7 +159,7 @@ label {
 
   <p class="small" id="timer"></p>
 
-  <button id="doneBtn" onclick="nextPhase()">DONE → NEXT</button>
+  <button onclick="nextPhase()">DONE → NEXT</button>
 </div>
 
 </div>
@@ -170,9 +170,34 @@ let current=0;
 let startTime;
 let interval;
 let warned=false;
+let audioCtx;
 
-function vibrate(pattern){
-  if(navigator.vibrate) navigator.vibrate(pattern);
+function initAudio(){
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }catch(e){}
+}
+
+function beep(type){
+  if(!audioCtx) return;
+
+  let duration = type === "end" ? 0.25 : 0.1;
+  let freq = type === "end" ? 880 : 600;
+
+  let osc = audioCtx.createOscillator();
+  let gain = audioCtx.createGain();
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.frequency.value = freq;
+  osc.type = "sine";
+
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
 }
 
 function showChecklist(){ startScreen.classList.add('hidden'); checklistScreen.classList.remove('hidden'); }
@@ -200,7 +225,7 @@ warned=false;
 warning.style.display="none";
 bar.style.width="0%";
 
-vibrate([200,100,200]);
+beep("start");
 
 let p=phases[current];
 phaseTitle.innerText=p.name;
@@ -219,14 +244,14 @@ let remaining=p.dur-elapsed;
 if(remaining<=1 && remaining>0 && !warned){
   warned=true;
   warning.style.display="block";
-  vibrate([100,80,100,80,300]);
+  beep("warning");
 }
 
 if(remaining<=0){
-  vibrate([500,200,500]);
+  beep("end");
   warning.innerText="⏱ Phase complete";
   warning.style.display="block";
-  document.getElementById('doneBtn').style.background="#f59e0b";
+  document.getElementById('doneBtn')?.focus;
 }
 
 let pct=Math.min(100,(elapsed/p.dur)*100);
@@ -237,7 +262,9 @@ timer.innerText=Math.max(0,Math.floor(elapsed)) + " / " + p.dur + " min";
 
 function nextPhase(){
 current++;
-if(current>=phases.length){alert("Walk complete!");location.reload();}
+if(current>=phases.length){
+beep("end");
+alert("Walk complete!");location.reload();}
 else startPhase();
 }
 </script>
