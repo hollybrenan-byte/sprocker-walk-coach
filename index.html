@@ -1,76 +1,218 @@
-data:text/html,
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walk Coach</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sprocker Walk Coach</title>
+<meta name="theme-color" content="#1b4332" />
+
 <style>
-body{font-family:Arial;margin:0;background:#f5f5f5;padding:16px}
-.card{background:white;padding:16px;border-radius:12px;margin-bottom:12px}
-button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:10px;background:#2d6a4f;color:white;font-size:16px}
-.hidden{display:none}
-input{width:100%}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.container {
+  padding: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #111827;
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+h2 {
+  margin: 6px 0 10px;
+  font-size: 22px;
+}
+
+p {
+  margin: 6px 0;
+  color: #cbd5e1;
+}
+
+.small {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 14px;
+  background: #22c55e;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.hidden { display: none; }
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin: 6px 0 12px;
+  font-size: 16px;
+}
+
+label {
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+.checkbox {
+  margin: 6px 0;
+}
+
+.progress {
+  height: 10px;
+  background: #1f2937;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.4s ease;
+}
+
+.phaseTitle {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.phaseText {
+  font-size: 16px;
+  margin-top: 6px;
+}
 </style>
 </head>
 <body>
 
-<div id="start" class="card">
-<h2>🐾 Walk Coach</h2>
-<p>45 min structured sprocker walk</p>
-<button onclick="goChecklist()">Start</button>
+<div class="container">
+
+<!-- START -->
+<div id="startScreen" class="card">
+  <h2>🐾 Walk Coach</h2>
+  <p>Structured 45-min sprocker walk system</p>
+  <button onclick="showChecklist()">Start Walk</button>
 </div>
 
-<div id="check" class="card hidden">
-<h3>Before You Go</h3>
-<label><input type="checkbox"> Treats</label><br>
-<label><input type="checkbox"> Scatter treats</label><br>
-<label><input type="checkbox"> Ball</label><br>
-<label><input type="checkbox"> Poop bags</label><br>
-<button onclick="goSettings()">Continue</button>
+<!-- CHECKLIST -->
+<div id="checklistScreen" class="card hidden">
+  <h2>Before You Go</h2>
+
+  <div class="checkbox"><label><input type="checkbox"> Treats (high value)</label></div>
+  <div class="checkbox"><label><input type="checkbox"> Scatter treats</label></div>
+  <div class="checkbox"><label><input type="checkbox"> Ball / toy</label></div>
+  <div class="checkbox"><label><input type="checkbox"> poo bags</label></div>
+  <div class="checkbox"><label><input type="checkbox"> Water</label></div>
+  <div class="checkbox"><label><input type="checkbox"> Phone charged</label></div>
+
+  <button onclick="showSettings()">Continue</button>
 </div>
 
-<div id="settings" class="card hidden">
-<h3>Walk Setup</h3>
-Connection <input id="t1" type="number" value="5"><br><br>
-Freedom <input id="t2" type="number" value="7"><br><br>
-Hunting <input id="t3" type="number" value="6"><br><br>
-<button onclick="startWalk()">Start Walk</button>
+<!-- SETTINGS -->
+<div id="settingsScreen" class="card hidden">
+  <h2>Walk Setup</h2>
+  <p class="small">Adjust minutes per phase</p>
+
+  Connection <input id="t1" type="number" value="5">
+  Freedom <input id="t2" type="number" value="7">
+  Hunting <input id="t3" type="number" value="6">
+  Managed <input id="t4" type="number" value="7">
+  Reset <input id="t5" type="number" value="7">
+  Play <input id="t6" type="number" value="8">
+  Cooldown <input id="t7" type="number" value="5">
+
+  <button onclick="startWalk()">Start Walk</button>
 </div>
 
-<div id="walk" class="card hidden">
-<h2 id="title"></h2>
-<p id="text"></p>
-<button onclick="next()">DONE →</button>
+<!-- WALK -->
+<div id="walkScreen" class="card hidden">
+  <div class="phaseTitle" id="phaseTitle"></div>
+  <div class="phaseText" id="phaseText"></div>
+
+  <div class="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <p class="small" id="timer"></p>
+
+  <button onclick="nextPhase()">DONE → NEXT</button>
+</div>
+
 </div>
 
 <script>
-let i=0;
 let phases=[];
-function buzz(){if(navigator.vibrate)navigator.vibrate(200);}
-function goChecklist(){start.classList.add('hidden');check.classList.remove('hidden')}
-function goSettings(){check.classList.add('hidden');settings.classList.remove('hidden')}
+let current=0;
+let startTime;
+let interval;
+
+function vibrate(){ if(navigator.vibrate) navigator.vibrate([150,80,150]); }
+
+function showChecklist(){ startScreen.classList.add('hidden'); checklistScreen.classList.remove('hidden'); }
+function showSettings(){ checklistScreen.classList.add('hidden'); settingsScreen.classList.remove('hidden'); }
 
 function startWalk(){
 phases=[
-{name:"Connection",text:"Sniff walk + find it"},
-{name:"Freedom",text:"Release + reward check-ins"},
-{name:"Hunting",text:"Find it / ball / search"}
+{name:"Connection",text:"Lead sniff + scatter find it",dur:+t1.value},
+{name:"Controlled Freedom",text:"Release + check-ins + chase me",dur:+t2.value},
+{name:"Hunting Work",text:"Find it / hidden ball / quartering",dur:+t3.value},
+{name:"Managed Freedom",text:"Free but interrupt often",dur:+t4.value},
+{name:"Reset",text:"Calm sniff + close work",dur:+t5.value},
+{name:"Play Peak",text:"Retrieve / chase / jackpot",dur:+t6.value},
+{name:"Cool Down",text:"Slow walk finish",dur:+t7.value}
 ];
-settings.classList.add('hidden');
-walk.classList.remove('hidden');
-show();
+
+current=0;
+settingsScreen.classList.add('hidden');
+walkScreen.classList.remove('hidden');
+startPhase();
 }
 
-function show(){
-buzz();
-title.innerText=phases[i].name;
-text.innerText=phases[i].text;
+function startPhase(){
+let p=phases[current];
+vibrate();
+phaseTitle.innerText=p.name;
+phaseText.innerText=p.text;
+startTime=Date.now();
+clearInterval(interval);
+interval=setInterval(update,500);
 }
 
-function next(){
-i++;
-if(i>=phases.length){alert("Walk done!");location.reload()}
-else show();
+function update(){
+let p=phases[current];
+let m=Math.floor((Date.now()-startTime)/60000);
+timer.innerText=`${m} / ${p.dur} min`;
+
+let pct=Math.min(100,(m/p.dur)*100);
+bar.style.width=pct+"%";
+}
+
+function nextPhase(){
+current++;
+if(current>=phases.length){alert("Walk complete!");location.reload();}
+else startPhase();
 }
 </script>
 
