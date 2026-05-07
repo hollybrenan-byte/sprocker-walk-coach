@@ -103,37 +103,40 @@ label {
   font-size: 16px;
   margin-top: 6px;
 }
+
+.warning {
+  background: #f59e0b;
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  display:none;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<!-- START -->
 <div id="startScreen" class="card">
   <h2>🐾 Walk Coach</h2>
   <p>Structured 45-min sprocker walk system</p>
   <button onclick="showChecklist()">Start Walk</button>
 </div>
 
-<!-- CHECKLIST -->
 <div id="checklistScreen" class="card hidden">
   <h2>Before You Go</h2>
-
-  <div class="checkbox"><label><input type="checkbox"> Treats (high value)</label></div>
-  <div class="checkbox"><label><input type="checkbox"> Scatter treats</label></div>
-  <div class="checkbox"><label><input type="checkbox"> Ball / toy</label></div>
-  <div class="checkbox"><label><input type="checkbox"> poo bags</label></div>
-  <div class="checkbox"><label><input type="checkbox"> Water</label></div>
-  <div class="checkbox"><label><input type="checkbox"> Phone charged</label></div>
-
+  <label><input type="checkbox"> Treats (high value)</label><br>
+  <label><input type="checkbox"> Scatter treats</label><br>
+  <label><input type="checkbox"> Ball / toy</label><br>
+  <label><input type="checkbox"> poo bags</label><br>
+  <label><input type="checkbox"> Water</label><br>
+  <label><input type="checkbox"> Phone charged</label><br>
   <button onclick="showSettings()">Continue</button>
 </div>
 
-<!-- SETTINGS -->
 <div id="settingsScreen" class="card hidden">
   <h2>Walk Setup</h2>
-  <p class="small">Adjust minutes per phase</p>
 
   Connection <input id="t1" type="number" value="5">
   Freedom <input id="t2" type="number" value="7">
@@ -146,18 +149,17 @@ label {
   <button onclick="startWalk()">Start Walk</button>
 </div>
 
-<!-- WALK -->
 <div id="walkScreen" class="card hidden">
   <div class="phaseTitle" id="phaseTitle"></div>
   <div class="phaseText" id="phaseText"></div>
 
-  <div class="progress">
-    <div class="bar" id="bar"></div>
-  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <div class="warning" id="warning">⚠️ 1 minute remaining</div>
 
   <p class="small" id="timer"></p>
 
-  <button onclick="nextPhase()">DONE → NEXT</button>
+  <button id="doneBtn" onclick="nextPhase()">DONE → NEXT</button>
 </div>
 
 </div>
@@ -167,8 +169,11 @@ let phases=[];
 let current=0;
 let startTime;
 let interval;
+let warned=false;
 
-function vibrate(){ if(navigator.vibrate) navigator.vibrate([150,80,150]); }
+function vibrate(pattern){
+  if(navigator.vibrate) navigator.vibrate(pattern);
+}
 
 function showChecklist(){ startScreen.classList.add('hidden'); checklistScreen.classList.remove('hidden'); }
 function showSettings(){ checklistScreen.classList.add('hidden'); settingsScreen.classList.remove('hidden'); }
@@ -191,10 +196,16 @@ startPhase();
 }
 
 function startPhase(){
+warned=false;
+warning.style.display="none";
+bar.style.width="0%";
+
+vibrate([200,100,200]);
+
 let p=phases[current];
-vibrate();
 phaseTitle.innerText=p.name;
 phaseText.innerText=p.text;
+
 startTime=Date.now();
 clearInterval(interval);
 interval=setInterval(update,500);
@@ -202,11 +213,26 @@ interval=setInterval(update,500);
 
 function update(){
 let p=phases[current];
-let m=Math.floor((Date.now()-startTime)/60000);
-timer.innerText=`${m} / ${p.dur} min`;
+let elapsed=(Date.now()-startTime)/60000;
+let remaining=p.dur-elapsed;
 
-let pct=Math.min(100,(m/p.dur)*100);
+if(remaining<=1 && remaining>0 && !warned){
+  warned=true;
+  warning.style.display="block";
+  vibrate([100,80,100,80,300]);
+}
+
+if(remaining<=0){
+  vibrate([500,200,500]);
+  warning.innerText="⏱ Phase complete";
+  warning.style.display="block";
+  document.getElementById('doneBtn').style.background="#f59e0b";
+}
+
+let pct=Math.min(100,(elapsed/p.dur)*100);
 bar.style.width=pct+"%";
+
+timer.innerText=Math.max(0,Math.floor(elapsed)) + " / " + p.dur + " min";
 }
 
 function nextPhase(){
