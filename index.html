@@ -16,7 +16,7 @@ body {
 
 .container {
   padding: 16px;
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
 }
 
@@ -55,28 +55,37 @@ button {
   font-weight: bold;
 }
 
-button:active {
-  transform: scale(0.98);
-}
+button:active { transform: scale(0.98); }
 
 .hidden { display: none; }
 
-input {
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.check-item input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+
+.check-item label {
+  font-size: 15px;
+  color: #e5e7eb;
+}
+
+input[type="number"] {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
   border: none;
   margin: 6px 0 12px;
   font-size: 16px;
-}
-
-label {
-  font-size: 14px;
-  color: #cbd5e1;
-}
-
-.checkbox {
-  margin: 6px 0;
+  background: #1f2937;
+  color: white;
 }
 
 .progress {
@@ -100,8 +109,14 @@ label {
 }
 
 .phaseText {
-  font-size: 16px;
+  font-size: 15px;
   margin-top: 6px;
+  color: #cbd5e1;
+}
+
+ul {
+  margin: 10px 0 0 18px;
+  color: #94a3b8;
 }
 
 .warning {
@@ -111,6 +126,48 @@ label {
   border-radius: 10px;
   margin-top: 10px;
   display:none;
+  font-weight: bold;
+}
+
+.decision {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.decision button {
+  font-size: 12px;
+  padding: 10px;
+  background: #334155;
+  color: white;
+  border-radius: 10px;
+  font-weight: normal;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlayCard {
+  background: #111827;
+  padding: 20px;
+  border-radius: 14px;
+  width: 85%;
 }
 </style>
 </head>
@@ -120,28 +177,28 @@ label {
 
 <div id="startScreen" class="card">
   <h2>🐾 Walk Coach</h2>
-  <p>Structured 45-min sprocker walk system</p>
+  <p>Structured 45-min sprocker training walk</p>
   <button onclick="initAudio(); showChecklist()">Start Walk</button>
 </div>
 
 <div id="checklistScreen" class="card hidden">
   <h2>Before You Go</h2>
-  <label><input type="checkbox"> Treats (high value)</label><br>
-  <label><input type="checkbox"> Scatter treats</label><br>
-  <label><input type="checkbox"> Ball / toy</label><br>
-  <label><input type="checkbox"> poo bags</label><br>
-  <label><input type="checkbox"> Water</label><br>
-  <label><input type="checkbox"> Phone charged</label><br>
+  <div class="check-item"><input type="checkbox"><label>Treats (high value rewards)</label></div>
+  <div class="check-item"><input type="checkbox"><label>Scatter treats for nose work</label></div>
+  <div class="check-item"><input type="checkbox"><label>Ball or toy</label></div>
+  <div class="check-item"><input type="checkbox"><label>poo bags</label></div>
+  <div class="check-item"><input type="checkbox"><label>Water</label></div>
+  <div class="check-item"><input type="checkbox"><label>Phone charged</label></div>
   <button onclick="showSettings()">Continue</button>
 </div>
 
 <div id="settingsScreen" class="card hidden">
-  <h2>Walk Setup</h2>
+  <h2>Walk Structure</h2>
 
   Connection <input id="t1" type="number" value="5">
-  Freedom <input id="t2" type="number" value="7">
-  Hunting <input id="t3" type="number" value="6">
-  Managed <input id="t4" type="number" value="7">
+  Controlled Freedom <input id="t2" type="number" value="7">
+  Hunting Work <input id="t3" type="number" value="6">
+  Managed Freedom <input id="t4" type="number" value="7">
   Reset <input id="t5" type="number" value="7">
   Play <input id="t6" type="number" value="8">
   Cooldown <input id="t7" type="number" value="5">
@@ -152,6 +209,8 @@ label {
 <div id="walkScreen" class="card hidden">
   <div class="phaseTitle" id="phaseTitle"></div>
   <div class="phaseText" id="phaseText"></div>
+
+  <ul id="activityList"></ul>
 
   <div class="progress"><div class="bar" id="bar"></div></div>
 
@@ -164,6 +223,17 @@ label {
 
 </div>
 
+<!-- DECISION MODE -->
+<div class="decision">
+  <button onclick="decision('range')">Ranging too far</button>
+  <button onclick="decision('recall')">Ignoring recall</button>
+  <button onclick="decision('over')">Over aroused</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard" id="overlayText"></div>
+</div>
+
 <script>
 let phases=[];
 let current=0;
@@ -173,16 +243,13 @@ let warned=false;
 let audioCtx;
 
 function initAudio(){
-  try{
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }catch(e){}
+  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
 }
 
 function beep(type){
   if(!audioCtx) return;
-
-  let duration = type === "end" ? 0.25 : 0.1;
   let freq = type === "end" ? 880 : 600;
+  let dur = type === "end" ? 0.25 : 0.1;
 
   let osc = audioCtx.createOscillator();
   let gain = audioCtx.createGain();
@@ -193,11 +260,41 @@ function beep(type){
   osc.frequency.value = freq;
   osc.type = "sine";
 
-  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+  gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
 
   osc.start();
-  osc.stop(audioCtx.currentTime + duration);
+  osc.stop(audioCtx.currentTime + dur);
+}
+
+function showOverlay(msg){
+  overlayText.innerText = msg;
+  overlay.style.display="flex";
+  setTimeout(()=>overlay.style.display="none",2500);
+}
+
+function decision(type){
+
+if(type==="range"){
+  showOverlay("Bring her in → Switch to Reset / Close engagement");
+  beep("end");
+  current = 4;
+  startPhase();
+}
+
+if(type==="recall"){
+  showOverlay("Engagement reset → Controlled Freedom + rewards");
+  beep("warning");
+  current = 1;
+  startPhase();
+}
+
+if(type==="over"){
+  showOverlay("OVERLOAD → Immediate calm reset");
+  beep("end");
+  current = 4;
+  startPhase();
+}
 }
 
 function showChecklist(){ startScreen.classList.add('hidden'); checklistScreen.classList.remove('hidden'); }
@@ -205,19 +302,30 @@ function showSettings(){ checklistScreen.classList.add('hidden'); settingsScreen
 
 function startWalk(){
 phases=[
-{name:"Connection",text:"Lead sniff + scatter find it",dur:+t1.value},
-{name:"Controlled Freedom",text:"Release + check-ins + chase me",dur:+t2.value},
-{name:"Hunting Work",text:"Find it / hidden ball / quartering",dur:+t3.value},
-{name:"Managed Freedom",text:"Free but interrupt often",dur:+t4.value},
-{name:"Reset",text:"Calm sniff + close work",dur:+t5.value},
-{name:"Play Peak",text:"Retrieve / chase / jackpot",dur:+t6.value},
-{name:"Cool Down",text:"Slow walk finish",dur:+t7.value}
+{name:"Connection",dur:+t1.value, activities:["Lead sniffing","Engagement checks","Scatter find it"]},
+{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead movement","Recall reinforcement","Handler check-ins"]},
+{name:"Hunting Work",dur:+t3.value, activities:["Hidden scent search","Quartering","Ball tracking"]},
+{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Interrupt + reconnect","Focus resets"]},
+{name:"Reset",dur:+t5.value, activities:["Calm sniffing","Close engagement","Decompression"]},
+{name:"Play Peak",dur:+t6.value, activities:["Ball chase","Retrieve","High reward play"]},
+{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Arousal downshift","Settle"]}
 ];
 
 current=0;
 settingsScreen.classList.add('hidden');
 walkScreen.classList.remove('hidden');
 startPhase();
+}
+
+function renderActivities(p){
+let list=document.getElementById("activityList");
+list.innerHTML="";
+
+p.activities.forEach(a=>{
+  let li=document.createElement("li");
+  li.innerText=a;
+  list.appendChild(li);
+});
 }
 
 function startPhase(){
@@ -229,7 +337,8 @@ beep("start");
 
 let p=phases[current];
 phaseTitle.innerText=p.name;
-phaseText.innerText=p.text;
+phaseText.innerText="";
+renderActivities(p);
 
 startTime=Date.now();
 clearInterval(interval);
@@ -249,22 +358,17 @@ if(remaining<=1 && remaining>0 && !warned){
 
 if(remaining<=0){
   beep("end");
-  warning.innerText="⏱ Phase complete";
   warning.style.display="block";
-  document.getElementById('doneBtn')?.focus;
 }
 
-let pct=Math.min(100,(elapsed/p.dur)*100);
-bar.style.width=pct+"%";
+bar.style.width=Math.min(100,(elapsed/p.dur)*100)+"%";
 
 timer.innerText=Math.max(0,Math.floor(elapsed)) + " / " + p.dur + " min";
 }
 
 function nextPhase(){
 current++;
-if(current>=phases.length){
-beep("end");
-alert("Walk complete!");location.reload();}
+if(current>=phases.length){beep("end");alert("Walk complete!");location.reload();}
 else startPhase();
 }
 </script>
