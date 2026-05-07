@@ -1,0 +1,78 @@
+data:text/html,
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walk Coach</title>
+<style>
+body{font-family:Arial;margin:0;background:#f5f5f5;padding:16px}
+.card{background:white;padding:16px;border-radius:12px;margin-bottom:12px}
+button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:10px;background:#2d6a4f;color:white;font-size:16px}
+.hidden{display:none}
+input{width:100%}
+</style>
+</head>
+<body>
+
+<div id="start" class="card">
+<h2>🐾 Walk Coach</h2>
+<p>45 min structured sprocker walk</p>
+<button onclick="goChecklist()">Start</button>
+</div>
+
+<div id="check" class="card hidden">
+<h3>Before You Go</h3>
+<label><input type="checkbox"> Treats</label><br>
+<label><input type="checkbox"> Scatter treats</label><br>
+<label><input type="checkbox"> Ball</label><br>
+<label><input type="checkbox"> Poop bags</label><br>
+<button onclick="goSettings()">Continue</button>
+</div>
+
+<div id="settings" class="card hidden">
+<h3>Walk Setup</h3>
+Connection <input id="t1" type="number" value="5"><br><br>
+Freedom <input id="t2" type="number" value="7"><br><br>
+Hunting <input id="t3" type="number" value="6"><br><br>
+<button onclick="startWalk()">Start Walk</button>
+</div>
+
+<div id="walk" class="card hidden">
+<h2 id="title"></h2>
+<p id="text"></p>
+<button onclick="next()">DONE →</button>
+</div>
+
+<script>
+let i=0;
+let phases=[];
+function buzz(){if(navigator.vibrate)navigator.vibrate(200);}
+function goChecklist(){start.classList.add('hidden');check.classList.remove('hidden')}
+function goSettings(){check.classList.add('hidden');settings.classList.remove('hidden')}
+
+function startWalk(){
+phases=[
+{name:"Connection",text:"Sniff walk + find it"},
+{name:"Freedom",text:"Release + reward check-ins"},
+{name:"Hunting",text:"Find it / ball / search"}
+];
+settings.classList.add('hidden');
+walk.classList.remove('hidden');
+show();
+}
+
+function show(){
+buzz();
+title.innerText=phases[i].name;
+text.innerText=phases[i].text;
+}
+
+function next(){
+i++;
+if(i>=phases.length){alert("Walk done!");location.reload()}
+else show();
+}
+</script>
+
+</body>
+</html>
