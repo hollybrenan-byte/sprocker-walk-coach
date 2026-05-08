@@ -196,12 +196,25 @@ ul {
   <h2>Walk Structure</h2>
 
   Connection <input id="t1" type="number" value="5">
+  <p class="small">Lead walking + calm sniffing. You reward when she checks back in or orients to you.</p>
+
   Controlled Freedom <input id="t2" type="number" value="7">
+  <p class="small">Off lead. Let her explore but regularly call her back for a treat or praise before releasing again.</p>
+
   Hunting Work <input id="t3" type="number" value="6">
+  <p class="small">Hide treats or toys. Encourage searching using nose work (scatter, hidden ball, grass searches).</p>
+
   Managed Freedom <input id="t4" type="number" value="7">
+  <p class="small">Free movement but you interrupt every so often to get eye contact or recall and reward.</p>
+
   Reset <input id="t5" type="number" value="7">
+  <p class="small">Slow sniffing, close proximity walking, calm behaviour only — reduce arousal.</p>
+
   Play <input id="t6" type="number" value="8">
+  <p class="small">High energy reward games like ball, chase, retrieve. Use structured start/stop control.</p>
+
   Cooldown <input id="t7" type="number" value="5">
+  <p class="small">Very slow walking, sniffing, and settling before finishing the walk.</p>
 
   <button onclick="startWalk()">Start Walk</button>
 </div>
@@ -223,11 +236,10 @@ ul {
 
 </div>
 
-<!-- DECISION MODE -->
 <div class="decision">
-  <button onclick="decision('range')">Ranging too far</button>
-  <button onclick="decision('recall')">Ignoring recall</button>
-  <button onclick="decision('over')">Over aroused</button>
+  <button onclick="decision('range')">She’s running too far → bring her back in</button>
+  <button onclick="decision('recall')">Not coming back → increase reward value</button>
+  <button onclick="decision('over')">Too excited → pause and reset calm</button>
 </div>
 
 <div class="overlay" id="overlay">
@@ -235,7 +247,22 @@ ul {
 </div>
 
 <script>
-let phases=[];
+let phases=[
+{name:"Release Routine",dur:2, activities:[
+"Stand still as lead comes off",
+"Say her name once (or whistle once)",
+"Wait for eye contact or return",
+"Reward calm check-in",
+"Then release her to explore again"
+]},
+{name:"Connection",dur:+t1.value, activities:["Lead walking","Calm sniffing","Reward check-ins"]},
+{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead exploration","Recall practice","Reward returns"]},
+{name:"Hunting Work",dur:+t3.value, activities:["Find hidden treats","Scent search","Use nose actively"]},
+{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Call back regularly","Re-engage focus"]},
+{name:"Reset",dur:+t5.value, activities:["Slow sniff walking","Close proximity","Calm behaviour only"]},
+{name:"Play Peak",dur:+t6.value, activities:["Ball games","Chase","High reward play"]},
+{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Relaxed sniffing","Settle down"]}
+];
 let current=0;
 let startTime;
 let interval;
@@ -274,25 +301,39 @@ function showOverlay(msg){
 }
 
 function decision(type){
-
 if(type==="range"){
-  showOverlay("Bring her in → Switch to Reset / Close engagement");
-  beep("end");
-  current = 4;
+  showOverlay("Stop → recall once → turn away → reward when she returns → release again");
+  current=4;
   startPhase();
 }
-
 if(type==="recall"){
-  showOverlay("Engagement reset → Controlled Freedom + rewards");
-  beep("warning");
-  current = 1;
+  showOverlay("Move closer → show high value reward → call once → reward when she returns → release again at shorter distance");
+  current=1;
   startPhase();
 }
-
 if(type==="over"){
-  showOverlay("OVERLOAD → Immediate calm reset");
-  beep("end");
-  current = 4;
+  showOverlay("Stop movement → bring her close → switch to calm sniff reset");
+  current=4;
+  startPhase();
+}
+}if(type==="recall"){
+  showOverlay("Switch to higher value reward → shorten distance → rebuild recall success");
+  current=1;
+  startPhase();
+}
+if(type==="over"){
+  showOverlay("Stop movement → bring her close → switch to calm sniff reset");
+  current=4;
+  startPhase();
+}
+}if(type==="recall"){
+  showOverlay("Increase reward value → Shorten distance → Rebuild recall success");
+  current=1;
+  startPhase();
+}
+if(type==="over"){
+  showOverlay("Stop movement → Bring her close → Switch to calm sniffing reset");
+  current=4;
   startPhase();
 }
 }
@@ -302,15 +343,14 @@ function showSettings(){ checklistScreen.classList.add('hidden'); settingsScreen
 
 function startWalk(){
 phases=[
-{name:"Connection",dur:+t1.value, activities:["Lead sniffing","Engagement checks","Scatter find it"]},
-{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead movement","Recall reinforcement","Handler check-ins"]},
-{name:"Hunting Work",dur:+t3.value, activities:["Hidden scent search","Quartering","Ball tracking"]},
-{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Interrupt + reconnect","Focus resets"]},
-{name:"Reset",dur:+t5.value, activities:["Calm sniffing","Close engagement","Decompression"]},
-{name:"Play Peak",dur:+t6.value, activities:["Ball chase","Retrieve","High reward play"]},
-{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Arousal downshift","Settle"]}
+{name:"Connection",dur:+t1.value, activities:["Lead walking","Calm sniffing","Reward check-ins"]},
+{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead exploration","Recall practice","Reward returns"]},
+{name:"Hunting Work",dur:+t3.value, activities:["Find hidden treats","Scent search","Use nose actively"]},
+{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Call back regularly","Re-engage focus"]},
+{name:"Reset",dur:+t5.value, activities:["Slow sniff walking","Close proximity","Calm behaviour only"]},
+{name:"Play Peak",dur:+t6.value, activities:["Ball games","Chase","High reward play"]},
+{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Relaxed sniffing","Settle down"]}
 ];
-
 current=0;
 settingsScreen.classList.add('hidden');
 walkScreen.classList.remove('hidden');
@@ -332,14 +372,11 @@ function startPhase(){
 warned=false;
 warning.style.display="none";
 bar.style.width="0%";
-
 beep("start");
-
 let p=phases[current];
 phaseTitle.innerText=p.name;
 phaseText.innerText="";
 renderActivities(p);
-
 startTime=Date.now();
 clearInterval(interval);
 interval=setInterval(update,500);
@@ -349,29 +386,13 @@ function update(){
 let p=phases[current];
 let elapsed=(Date.now()-startTime)/60000;
 let remaining=p.dur-elapsed;
-
-if(remaining<=1 && remaining>0 && !warned){
-  warned=true;
-  warning.style.display="block";
-  beep("warning");
-}
-
-if(remaining<=0){
-  beep("end");
-  warning.style.display="block";
-}
-
+if(remaining<=1 && remaining>0 && !warned){warned=true;warning.style.display="block";}
+if(remaining<=0){beep("end");warning.style.display="block";}
 bar.style.width=Math.min(100,(elapsed/p.dur)*100)+"%";
-
-timer.innerText=Math.max(0,Math.floor(elapsed)) + " / " + p.dur + " min";
+timer.innerText=Math.max(0,Math.floor(elapsed))+" / "+p.dur+" min";
 }
 
-function nextPhase(){
-current++;
-if(current>=phases.length){beep("end");alert("Walk complete!");location.reload();}
-else startPhase();
-}
+function nextPhase(){current++;if(current>=phases.length){alert("Walk complete!");location.reload();}else startPhase();}
 </script>
-
 </body>
 </html>
