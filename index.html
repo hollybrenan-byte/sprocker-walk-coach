@@ -28,20 +28,11 @@ body {
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-h2 {
-  margin: 6px 0 10px;
-  font-size: 22px;
-}
+h2 { margin: 6px 0 10px; font-size: 22px; }
 
-p {
-  margin: 6px 0;
-  color: #cbd5e1;
-}
+p { margin: 6px 0; color: #cbd5e1; }
 
-.small {
-  font-size: 12px;
-  color: #94a3b8;
-}
+.small { font-size: 12px; color: #94a3b8; }
 
 button {
   width: 100%;
@@ -66,58 +57,29 @@ button:active { transform: scale(0.98); }
   margin: 10px 0;
 }
 
-.check-item input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-}
+.check-item input { width: 20px; height: 20px; margin: 0; }
 
-.check-item label {
-  font-size: 15px;
-  color: #e5e7eb;
-}
+.check-item label { font-size: 15px; color: #e5e7eb; }
 
 input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  margin: 6px 0 12px;
-  font-size: 16px;
-  background: #1f2937;
-  color: white;
+  width: 100%; padding: 10px; border-radius: 10px;
+  border: none; margin: 6px 0 12px;
+  font-size: 16px; background: #1f2937; color: white;
 }
 
 .progress {
-  height: 10px;
-  background: #1f2937;
-  border-radius: 999px;
-  overflow: hidden;
+  height: 10px; background: #1f2937;
+  border-radius: 999px; overflow: hidden;
   margin-top: 10px;
 }
 
-.bar {
-  height: 100%;
-  width: 0%;
-  background: #22c55e;
-  transition: width 0.4s ease;
-}
+.bar { height: 100%; width: 0%; background: #22c55e; transition: width 0.4s ease; }
 
-.phaseTitle {
-  font-size: 26px;
-  font-weight: bold;
-}
+.phaseTitle { font-size: 26px; font-weight: bold; }
 
-.phaseText {
-  font-size: 15px;
-  margin-top: 6px;
-  color: #cbd5e1;
-}
+.phaseText { font-size: 15px; margin-top: 6px; color: #cbd5e1; }
 
-ul {
-  margin: 10px 0 0 18px;
-  color: #94a3b8;
-}
+ul { margin: 10px 0 0 18px; color: #94a3b8; }
 
 .warning {
   background: #f59e0b;
@@ -148,15 +110,11 @@ ul {
   background: #334155;
   color: white;
   border-radius: 10px;
-  font-weight: normal;
 }
 
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0,0,0,0.6);
   display: none;
   align-items: center;
@@ -177,69 +135,43 @@ ul {
 
 <div id="startScreen" class="card">
   <h2>🐾 Walk Coach</h2>
-  <p>Structured 45-min sprocker training walk</p>
   <button onclick="initAudio(); showChecklist()">Start Walk</button>
 </div>
 
 <div id="checklistScreen" class="card hidden">
   <h2>Before You Go</h2>
-  <div class="check-item"><input type="checkbox"><label>Treats (high value rewards)</label></div>
-  <div class="check-item"><input type="checkbox"><label>Scatter treats for nose work</label></div>
-  <div class="check-item"><input type="checkbox"><label>Ball or toy</label></div>
+  <div class="check-item"><input type="checkbox"><label>Treats</label></div>
+  <div class="check-item"><input type="checkbox"><label>Scatter treats</label></div>
+  <div class="check-item"><input type="checkbox"><label>Ball</label></div>
   <div class="check-item"><input type="checkbox"><label>poo bags</label></div>
-  <div class="check-item"><input type="checkbox"><label>Water</label></div>
-  <div class="check-item"><input type="checkbox"><label>Phone charged</label></div>
   <button onclick="showSettings()">Continue</button>
 </div>
 
 <div id="settingsScreen" class="card hidden">
-  <h2>Walk Structure</h2>
-
+  <h2>Walk Setup</h2>
   Connection <input id="t1" type="number" value="5">
-  <p class="small">Lead walking + calm sniffing. You reward when she checks back in or orients to you.</p>
-
   Controlled Freedom <input id="t2" type="number" value="7">
-  <p class="small">Off lead. Let her explore but regularly call her back for a treat or praise before releasing again.</p>
-
   Hunting Work <input id="t3" type="number" value="6">
-  <p class="small">Hide treats or toys. Encourage searching using nose work (scatter, hidden ball, grass searches).</p>
-
   Managed Freedom <input id="t4" type="number" value="7">
-  <p class="small">Free movement but you interrupt every so often to get eye contact or recall and reward.</p>
-
   Reset <input id="t5" type="number" value="7">
-  <p class="small">Slow sniffing, close proximity walking, calm behaviour only — reduce arousal.</p>
-
   Play <input id="t6" type="number" value="8">
-  <p class="small">High energy reward games like ball, chase, retrieve. Use structured start/stop control.</p>
-
   Cooldown <input id="t7" type="number" value="5">
-  <p class="small">Very slow walking, sniffing, and settling before finishing the walk.</p>
-
   <button onclick="startWalk()">Start Walk</button>
 </div>
 
 <div id="walkScreen" class="card hidden">
   <div class="phaseTitle" id="phaseTitle"></div>
-  <div class="phaseText" id="phaseText"></div>
-
   <ul id="activityList"></ul>
-
-  <div class="progress"><div class="bar" id="bar"></div></div>
-
   <div class="warning" id="warning">⚠️ 1 minute remaining</div>
-
-  <p class="small" id="timer"></p>
-
-  <button onclick="nextPhase()">DONE → NEXT</button>
+  <button onclick="nextPhase()">NEXT</button>
 </div>
 
 </div>
 
 <div class="decision">
-  <button onclick="decision('range')">She’s running too far → bring her back in</button>
-  <button onclick="decision('recall')">Not coming back → increase reward value</button>
-  <button onclick="decision('over')">Too excited → pause and reset calm</button>
+  <button onclick="decision('range')">Too far → bring in</button>
+  <button onclick="decision('recall')">Recall weak → reward more</button>
+  <button onclick="decision('over')">Too excited → reset calm</button>
 </div>
 
 <div class="overlay" id="overlay">
@@ -247,152 +179,56 @@ ul {
 </div>
 
 <script>
-let phases=[
-{name:"Release Routine",dur:2, activities:[
-"Stand still as lead comes off",
-"Say her name once (or whistle once)",
-"Wait for eye contact or return",
-"Reward calm check-in",
-"Then release her to explore again"
-]},
-{name:"Connection",dur:+t1.value, activities:["Lead walking","Calm sniffing","Reward check-ins"]},
-{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead exploration","Recall practice","Reward returns"]},
-{name:"Hunting Work",dur:+t3.value, activities:["Find hidden treats","Scent search","Use nose actively"]},
-{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Call back regularly","Re-engage focus"]},
-{name:"Reset",dur:+t5.value, activities:["Slow sniff walking","Close proximity","Calm behaviour only"]},
-{name:"Play Peak",dur:+t6.value, activities:["Ball games","Chase","High reward play"]},
-{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Relaxed sniffing","Settle down"]}
-];
-let current=0;
-let startTime;
-let interval;
-let warned=false;
-let audioCtx;
+let phases=[],current=0;
 
-function initAudio(){
-  try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
-}
-
-function beep(type){
-  if(!audioCtx) return;
-  let freq = type === "end" ? 880 : 600;
-  let dur = type === "end" ? 0.25 : 0.1;
-
-  let osc = audioCtx.createOscillator();
-  let gain = audioCtx.createGain();
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.frequency.value = freq;
-  osc.type = "sine";
-
-  gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + dur);
-}
-
-function showOverlay(msg){
-  overlayText.innerText = msg;
+function showOverlay(t){
+  overlayText.innerText=t;
   overlay.style.display="flex";
   setTimeout(()=>overlay.style.display="none",2500);
 }
 
 function decision(type){
 if(type==="range"){
-  showOverlay("Stop → recall once → turn away → reward when she returns → release again");
+  showOverlay("Stop → recall once → turn away → reward → release");
   current=4;
-  startPhase();
 }
 if(type==="recall"){
-  showOverlay("Move closer → show high value reward → call once → reward when she returns → release again at shorter distance");
+  showOverlay("Move closer → high reward → call once → reward → shorten distance");
   current=1;
-  startPhase();
 }
 if(type==="over"){
-  showOverlay("Stop movement → bring her close → switch to calm sniff reset");
+  showOverlay("Stop → lead on → sit → wait → calm → release");
   current=4;
-  startPhase();
 }
-}if(type==="recall"){
-  showOverlay("Switch to higher value reward → shorten distance → rebuild recall success");
-  current=1;
-  startPhase();
-}
-if(type==="over"){
-  showOverlay("Stop movement → bring her close → switch to calm sniff reset");
-  current=4;
-  startPhase();
-}
-}if(type==="recall"){
-  showOverlay("Increase reward value → Shorten distance → Rebuild recall success");
-  current=1;
-  startPhase();
-}
-if(type==="over"){
-  showOverlay("Stop movement → Bring her close → Switch to calm sniffing reset");
-  current=4;
-  startPhase();
-}
-}
-
-function showChecklist(){ startScreen.classList.add('hidden'); checklistScreen.classList.remove('hidden'); }
-function showSettings(){ checklistScreen.classList.add('hidden'); settingsScreen.classList.remove('hidden'); }
-
-function startWalk(){
-phases=[
-{name:"Connection",dur:+t1.value, activities:["Lead walking","Calm sniffing","Reward check-ins"]},
-{name:"Controlled Freedom",dur:+t2.value, activities:["Off lead exploration","Recall practice","Reward returns"]},
-{name:"Hunting Work",dur:+t3.value, activities:["Find hidden treats","Scent search","Use nose actively"]},
-{name:"Managed Freedom",dur:+t4.value, activities:["Free roaming","Call back regularly","Re-engage focus"]},
-{name:"Reset",dur:+t5.value, activities:["Slow sniff walking","Close proximity","Calm behaviour only"]},
-{name:"Play Peak",dur:+t6.value, activities:["Ball games","Chase","High reward play"]},
-{name:"Cool Down",dur:+t7.value, activities:["Slow walking","Relaxed sniffing","Settle down"]}
-];
-current=0;
-settingsScreen.classList.add('hidden');
-walkScreen.classList.remove('hidden');
 startPhase();
 }
 
-function renderActivities(p){
-let list=document.getElementById("activityList");
-list.innerHTML="";
+function startWalk(){
+phases=[
+{name:"Release Routine",activities:["Pause → name → reward check-in → release"]},
+{name:"Connection",activities:["Lead walking","Check-ins","Reward orientation"]},
+{name:"Controlled Freedom",activities:["Explore","Recall","Reward returns"]},
+{name:"Hunting Work",activities:["Search","Find it games"]},
+{name:"Managed Freedom",activities:["Free roam","Recall checks"]},
+{name:"Reset",activities:["Calm sniff","Close work"]},
+{name:"Play",activities:["Ball","Chase"]},
+{name:"Cool Down",activities:["Slow walk","Settle"]}
+];
+current=0;
+showPhase();
+}
 
+function showPhase(){
+let p=phases[current];
+phaseTitle.innerText=p.name;
+activityList.innerHTML="";
 p.activities.forEach(a=>{
-  let li=document.createElement("li");
-  li.innerText=a;
-  list.appendChild(li);
+let li=document.createElement("li");li.innerText=a;activityList.appendChild(li);
 });
 }
 
-function startPhase(){
-warned=false;
-warning.style.display="none";
-bar.style.width="0%";
-beep("start");
-let p=phases[current];
-phaseTitle.innerText=p.name;
-phaseText.innerText="";
-renderActivities(p);
-startTime=Date.now();
-clearInterval(interval);
-interval=setInterval(update,500);
-}
-
-function update(){
-let p=phases[current];
-let elapsed=(Date.now()-startTime)/60000;
-let remaining=p.dur-elapsed;
-if(remaining<=1 && remaining>0 && !warned){warned=true;warning.style.display="block";}
-if(remaining<=0){beep("end");warning.style.display="block";}
-bar.style.width=Math.min(100,(elapsed/p.dur)*100)+"%";
-timer.innerText=Math.max(0,Math.floor(elapsed))+" / "+p.dur+" min";
-}
-
-function nextPhase(){current++;if(current>=phases.length){alert("Walk complete!");location.reload();}else startPhase();}
+function nextPhase(){current++;if(current<phases.length)showPhase();}
 </script>
+
 </body>
 </html>
