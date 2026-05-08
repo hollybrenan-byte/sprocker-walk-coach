@@ -53,7 +53,7 @@ button:active{transform:scale(0.98);}
 
 .small{font-size:12px;color:#94a3b8;}
 
-ul{color:#94a3b8;}
+ul{color:#cbd5e1;margin-left:18px;}
 
 .decision{
   position:fixed;
@@ -87,6 +87,36 @@ ul{color:#94a3b8;}
   border-radius:14px;
   width:85%;
 }
+
+.progress{
+  height:10px;
+  background:#1f2937;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:12px;
+}
+
+.bar{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+}
+
+.timer{
+  margin-top:8px;
+  font-size:13px;
+  color:#94a3b8;
+}
+
+.warning{
+  margin-top:10px;
+  padding:8px;
+  background:#f59e0b;
+  color:black;
+  border-radius:8px;
+  display:none;
+  font-weight:bold;
+}
 </style>
 </head>
 <body>
@@ -109,7 +139,13 @@ ul{color:#94a3b8;}
 
 <div id="walkScreen" class="card hidden">
   <h2 id="phaseTitle"></h2>
+  <p id="phaseDesc" class="small"></p>
   <ul id="activityList"></ul>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="timer" id="timer"></div>
+  <div class="warning" id="warning">⚠️ 1 minute remaining</div>
+
   <button onclick="nextPhase()">NEXT</button>
 </div>
 
@@ -126,17 +162,23 @@ ul{color:#94a3b8;}
 </div>
 
 <script>
-// DOM refs
-const startScreen = document.getElementById('startScreen');
-const checklistScreen = document.getElementById('checklistScreen');
-const walkScreen = document.getElementById('walkScreen');
-const phaseTitle = document.getElementById('phaseTitle');
-const activityList = document.getElementById('activityList');
-const overlay = document.getElementById('overlay');
-const overlayText = document.getElementById('overlayText');
+const startScreen=document.getElementById('startScreen');
+const checklistScreen=document.getElementById('checklistScreen');
+const walkScreen=document.getElementById('walkScreen');
+const phaseTitle=document.getElementById('phaseTitle');
+const phaseDesc=document.getElementById('phaseDesc');
+const activityList=document.getElementById('activityList');
+const timerEl=document.getElementById('timer');
+const bar=document.getElementById('bar');
+const warning=document.getElementById('warning');
+const overlay=document.getElementById('overlay');
+const overlayText=document.getElementById('overlayText');
 
 let phases=[];
 let current=0;
+let startTime;
+let interval;
+let warned=false;
 
 function showChecklist(){
   startScreen.classList.add('hidden');
@@ -151,15 +193,39 @@ function showWalk(){
 
 function startWalk(){
 phases=[
-{name:"Release Routine",activities:["Pause → name → reward check-in → release"]},
-{name:"Connection",activities:["Lead walking","Check-ins","Reward orientation"]},
-{name:"Controlled Freedom",activities:["Explore","Recall","Reward returns"]},
-{name:"Hunting Work",activities:["Search games","Find it"]},
-{name:"Managed Freedom",activities:["Free roam","Recall checks"]},
-{name:"Reset",activities:["Calm sniff","Close work"]},
-{name:"Play",activities:["Ball","Chase"]},
-{name:"Cool Down",activities:["Slow walk","Settle"]}
+{name:"Release Routine",dur:2,
+ desc:"First 30–60 seconds after coming off lead. You set control before she runs.",
+ activities:["Stop still","Say name once","Wait for eye contact","Reward check-in","Release"]},
+
+{name:"Connection",dur:5,
+ desc:"Build focus and calm engagement while on lead or close off lead work.",
+ activities:["Lead walking","Reward eye contact","Calm sniffing","Short check-ins"]},
+
+{name:"Controlled Freedom",dur:7,
+ desc:"Off lead but structured. You repeatedly rebuild contact so she doesn’t disappear.",
+ activities:["Let explore","Recall every few mins","Reward return","Release again"]},
+
+{name:"Hunting Work",dur:6,
+ desc:"Channel natural scent drive into structured searching games.",
+ activities:["Find it games","Scatter treats","Hidden ball search"]},
+
+{name:"Managed Freedom",dur:7,
+ desc:"Free movement with regular interruptions to maintain handler focus.",
+ activities:["Free roam","Call back often","Reward check-ins"]},
+
+{name:"Reset",dur:5,
+ desc:"Reduce arousal. Slow everything down and bring her mentally closer.",
+ activities:["Slow walking","Close proximity","Calm sniffing"]},
+
+{name:"Play",dur:8,
+ desc:"High arousal play but fully controlled start/stop to avoid chaos.",
+ activities:["Ball throw","Chase","Retrieve with breaks"]},
+
+{name:"Cool Down",dur:5,
+ desc:"End walk in a calm, settled state.",
+ activities:["Slow walk","Relaxed sniffing","Settle"]}
 ];
+
 current=0;
 showPhase();
 }
@@ -167,12 +233,40 @@ showPhase();
 function showPhase(){
 let p=phases[current];
 phaseTitle.innerText=p.name;
+phaseDesc.innerText=p.desc;
 activityList.innerHTML="";
 p.activities.forEach(a=>{
-let li=document.createElement("li");
-li.innerText=a;
-activityList.appendChild(li);
+let li=document.createElement('li');li.innerText=a;activityList.appendChild(li);
 });
+startTimer();
+}
+
+function startTimer(){
+clearInterval(interval);
+startTime=Date.now();
+warned=false;
+warning.style.display="none";
+
+interval=setInterval(()=>{
+let p=phases[current];
+let elapsed=(Date.now()-startTime)/60000;
+let remaining=p.dur-elapsed;
+
+let pct=(elapsed/p.dur)*100;
+bar.style.width=Math.min(100,pct)+"%";
+
+timerEl.innerText=`${Math.max(0,Math.floor(remaining))} min remaining`;
+
+if(remaining<=1 && !warned){
+warned=true;
+warning.style.display="block";
+}
+
+if(remaining<=0){
+clearInterval(interval);
+}
+
+},500);
 }
 
 function nextPhase(){
@@ -187,20 +281,11 @@ setTimeout(()=>overlay.style.display="none",2500);
 
 function decision(type){
 if(type==="range"){
-showOverlay("Stop → recall → turn away → reward → release");
-current=4;
-showPhase();
-}
+showOverlay("Stop → recall → turn away → reward → release");current=4;showPhase();}
 if(type==="recall"){
-showOverlay("Move closer → high reward → call once → reward → shorten distance");
-current=1;
-showPhase();
-}
+showOverlay("Move closer → high reward → call once → reward → shorten distance");current=1;showPhase();}
 if(type==="over"){
-showOverlay("Stop → lead on → sit → wait → calm → continue");
-current=4;
-showPhase();
-}
+showOverlay("Stop → lead on → sit → wait → calm → continue");current=4;showPhase();}
 }
 </script>
 
