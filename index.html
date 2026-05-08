@@ -7,125 +7,86 @@
 <meta name="theme-color" content="#1b4332" />
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #0f172a;
-  color: #e5e7eb;
+body{
+  font-family:Arial,sans-serif;
+  margin:0;
+  background:#0f172a;
+  color:#e5e7eb;
 }
 
-.container {
-  padding: 16px;
-  max-width: 540px;
-  margin: 0 auto;
+.container{padding:16px;max-width:540px;margin:0 auto;}
+
+.card{
+  background:#111827;
+  padding:18px;
+  border-radius:16px;
+  margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.35);
 }
 
-.card {
-  background: #111827;
-  padding: 18px;
-  border-radius: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+h2{margin:6px 0 10px;font-size:22px;}
+p{color:#cbd5e1;}
+
+.hidden{display:none;}
+
+button{
+  width:100%;
+  padding:16px;
+  margin-top:12px;
+  border:none;
+  border-radius:14px;
+  background:#22c55e;
+  color:black;
+  font-size:18px;
+  font-weight:bold;
 }
 
-h2 { margin: 6px 0 10px; font-size: 22px; }
+button:active{transform:scale(0.98);}
 
-p { margin: 6px 0; color: #cbd5e1; }
-
-.small { font-size: 12px; color: #94a3b8; }
-
-button {
-  width: 100%;
-  padding: 16px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 14px;
-  background: #22c55e;
-  color: black;
-  font-size: 18px;
-  font-weight: bold;
+.check-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:10px 0;
 }
 
-button:active { transform: scale(0.98); }
+.check-item input{width:20px;height:20px;}
 
-.hidden { display: none; }
+.small{font-size:12px;color:#94a3b8;}
 
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
+ul{color:#94a3b8;}
+
+.decision{
+  position:fixed;
+  bottom:10px;
+  left:10px;
+  right:10px;
+  display:flex;
+  gap:8px;
 }
 
-.check-item input { width: 20px; height: 20px; margin: 0; }
-
-.check-item label { font-size: 15px; color: #e5e7eb; }
-
-input[type="number"] {
-  width: 100%; padding: 10px; border-radius: 10px;
-  border: none; margin: 6px 0 12px;
-  font-size: 16px; background: #1f2937; color: white;
+.decision button{
+  font-size:12px;
+  padding:10px;
+  background:#334155;
+  color:white;
+  border-radius:10px;
 }
 
-.progress {
-  height: 10px; background: #1f2937;
-  border-radius: 999px; overflow: hidden;
-  margin-top: 10px;
-}
-
-.bar { height: 100%; width: 0%; background: #22c55e; transition: width 0.4s ease; }
-
-.phaseTitle { font-size: 26px; font-weight: bold; }
-
-.phaseText { font-size: 15px; margin-top: 6px; color: #cbd5e1; }
-
-ul { margin: 10px 0 0 18px; color: #94a3b8; }
-
-.warning {
-  background: #f59e0b;
-  color: black;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
   display:none;
-  font-weight: bold;
+  align-items:center;
+  justify-content:center;
 }
 
-.decision {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  background: #0b1220;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 10px;
-  display: flex;
-  gap: 8px;
-}
-
-.decision button {
-  font-size: 12px;
-  padding: 10px;
-  background: #334155;
-  color: white;
-  border-radius: 10px;
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.overlayCard {
-  background: #111827;
-  padding: 20px;
-  border-radius: 14px;
-  width: 85%;
+.overlayCard{
+  background:#111827;
+  padding:20px;
+  border-radius:14px;
+  width:85%;
 }
 </style>
 </head>
@@ -135,7 +96,7 @@ ul { margin: 10px 0 0 18px; color: #94a3b8; }
 
 <div id="startScreen" class="card">
   <h2>🐾 Walk Coach</h2>
-  <button onclick="initAudio(); showChecklist()">Start Walk</button>
+  <button onclick="showChecklist()">Start Walk</button>
 </div>
 
 <div id="checklistScreen" class="card hidden">
@@ -143,26 +104,13 @@ ul { margin: 10px 0 0 18px; color: #94a3b8; }
   <div class="check-item"><input type="checkbox"><label>Treats</label></div>
   <div class="check-item"><input type="checkbox"><label>Scatter treats</label></div>
   <div class="check-item"><input type="checkbox"><label>Ball</label></div>
-  <div class="check-item"><input type="checkbox"><label>poo bags</label></div>
-  <button onclick="showSettings()">Continue</button>
-</div>
-
-<div id="settingsScreen" class="card hidden">
-  <h2>Walk Setup</h2>
-  Connection <input id="t1" type="number" value="5">
-  Controlled Freedom <input id="t2" type="number" value="7">
-  Hunting Work <input id="t3" type="number" value="6">
-  Managed Freedom <input id="t4" type="number" value="7">
-  Reset <input id="t5" type="number" value="7">
-  Play <input id="t6" type="number" value="8">
-  Cooldown <input id="t7" type="number" value="5">
-  <button onclick="startWalk()">Start Walk</button>
+  <div class="check-item"><input type="checkbox"><label>Poo bags</label></div>
+  <button onclick="showWalk()">Continue</button>
 </div>
 
 <div id="walkScreen" class="card hidden">
-  <div class="phaseTitle" id="phaseTitle"></div>
+  <h2 id="phaseTitle"></h2>
   <ul id="activityList"></ul>
-  <div class="warning" id="warning">⚠️ 1 minute remaining</div>
   <button onclick="nextPhase()">NEXT</button>
 </div>
 
@@ -179,28 +127,18 @@ ul { margin: 10px 0 0 18px; color: #94a3b8; }
 </div>
 
 <script>
-let phases=[],current=0;
+let phases=[];
+let current=0;
 
-function showOverlay(t){
-  overlayText.innerText=t;
-  overlay.style.display="flex";
-  setTimeout(()=>overlay.style.display="none",2500);
+function showChecklist(){
+  startScreen.classList.add('hidden');
+  checklistScreen.classList.remove('hidden');
 }
 
-function decision(type){
-if(type==="range"){
-  showOverlay("Stop → recall once → turn away → reward → release");
-  current=4;
-}
-if(type==="recall"){
-  showOverlay("Move closer → high reward → call once → reward → shorten distance");
-  current=1;
-}
-if(type==="over"){
-  showOverlay("Stop → lead on → sit → wait → calm → release");
-  current=4;
-}
-startPhase();
+function showWalk(){
+  checklistScreen.classList.add('hidden');
+  walkScreen.classList.remove('hidden');
+  startWalk();
 }
 
 function startWalk(){
@@ -208,7 +146,7 @@ phases=[
 {name:"Release Routine",activities:["Pause → name → reward check-in → release"]},
 {name:"Connection",activities:["Lead walking","Check-ins","Reward orientation"]},
 {name:"Controlled Freedom",activities:["Explore","Recall","Reward returns"]},
-{name:"Hunting Work",activities:["Search","Find it games"]},
+{name:"Hunting Work",activities:["Search games","Find it"]},
 {name:"Managed Freedom",activities:["Free roam","Recall checks"]},
 {name:"Reset",activities:["Calm sniff","Close work"]},
 {name:"Play",activities:["Ball","Chase"]},
@@ -227,7 +165,33 @@ let li=document.createElement("li");li.innerText=a;activityList.appendChild(li);
 });
 }
 
-function nextPhase(){current++;if(current<phases.length)showPhase();}
+function nextPhase(){
+if(current<phases.length-1){current++;showPhase();}
+}
+
+function showOverlay(msg){
+overlayText.innerText=msg;
+overlay.style.display="flex";
+setTimeout(()=>overlay.style.display="none",2500);
+}
+
+function decision(type){
+if(type==="range"){
+showOverlay("Stop → recall → turn away → reward → release");
+current=4;
+showPhase();
+}
+if(type==="recall"){
+showOverlay("Move closer → high reward → call once → reward → shorten distance");
+current=1;
+showPhase();
+}
+if(type==="over"){
+showOverlay("Stop → lead on → sit → wait → calm → continue");
+current=4;
+showPhase();
+}
+}
 </script>
 
 </body>
