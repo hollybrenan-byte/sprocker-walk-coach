@@ -25,7 +25,6 @@ body{
 }
 
 h2{margin:6px 0 10px;font-size:22px;}
-p{color:#cbd5e1;}
 
 .hidden{display:none;}
 
@@ -127,6 +126,15 @@ ul{color:#94a3b8;}
 </div>
 
 <script>
+// DOM refs
+const startScreen = document.getElementById('startScreen');
+const checklistScreen = document.getElementById('checklistScreen');
+const walkScreen = document.getElementById('walkScreen');
+const phaseTitle = document.getElementById('phaseTitle');
+const activityList = document.getElementById('activityList');
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlayText');
+
 let phases=[];
 let current=0;
 
@@ -161,7 +169,9 @@ let p=phases[current];
 phaseTitle.innerText=p.name;
 activityList.innerHTML="";
 p.activities.forEach(a=>{
-let li=document.createElement("li");li.innerText=a;activityList.appendChild(li);
+let li=document.createElement("li");
+li.innerText=a;
+activityList.appendChild(li);
 });
 }
 
