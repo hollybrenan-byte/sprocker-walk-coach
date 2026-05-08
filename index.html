@@ -193,36 +193,36 @@ function showWalk(){
 
 function startWalk(){
 phases=[
-{name:"Release Routine",dur:2,
- desc:"First 30–60 seconds after coming off lead. You set control before she runs.",
- activities:["Stop still","Say name once","Wait for eye contact","Reward check-in","Release"]},
-
 {name:"Connection",dur:5,
- desc:"Build focus and calm engagement while on lead or close off lead work.",
+ desc:"Build calm engagement before freedom. You are establishing attention and responsiveness.",
  activities:["Lead walking","Reward eye contact","Calm sniffing","Short check-ins"]},
 
+{name:"Release Routine",dur:2,
+ desc:"Critical transition from control to freedom. You create attention before off-lead movement.",
+ activities:["Stop still","Say name once","Wait for eye contact","Reward check-in","Release"]},
+
 {name:"Controlled Freedom",dur:7,
- desc:"Off lead but structured. You repeatedly rebuild contact so she doesn’t disappear.",
+ desc:"Structured off-lead work. She explores but repeatedly reconnects with you.",
  activities:["Let explore","Recall every few mins","Reward return","Release again"]},
 
 {name:"Hunting Work",dur:6,
- desc:"Channel natural scent drive into structured searching games.",
+ desc:"Channel scent drive into structured search games.",
  activities:["Find it games","Scatter treats","Hidden ball search"]},
 
 {name:"Managed Freedom",dur:7,
- desc:"Free movement with regular interruptions to maintain handler focus.",
+ desc:"Free movement with regular interruptions to maintain engagement.",
  activities:["Free roam","Call back often","Reward check-ins"]},
 
 {name:"Reset",dur:5,
- desc:"Reduce arousal. Slow everything down and bring her mentally closer.",
+ desc:"Lower arousal and bring focus back to handler.",
  activities:["Slow walking","Close proximity","Calm sniffing"]},
 
 {name:"Play",dur:8,
- desc:"High arousal play but fully controlled start/stop to avoid chaos.",
+ desc:"High arousal play with controlled structure.",
  activities:["Ball throw","Chase","Retrieve with breaks"]},
 
 {name:"Cool Down",dur:5,
- desc:"End walk in a calm, settled state.",
+ desc:"Finish in calm, settled state.",
  activities:["Slow walk","Relaxed sniffing","Settle"]}
 ];
 
@@ -236,7 +236,9 @@ phaseTitle.innerText=p.name;
 phaseDesc.innerText=p.desc;
 activityList.innerHTML="";
 p.activities.forEach(a=>{
-let li=document.createElement('li');li.innerText=a;activityList.appendChild(li);
+let li=document.createElement('li');
+li.innerText=a;
+activityList.appendChild(li);
 });
 startTimer();
 }
@@ -262,9 +264,7 @@ warned=true;
 warning.style.display="block";
 }
 
-if(remaining<=0){
-clearInterval(interval);
-}
+if(remaining<=0){clearInterval(interval);}
 
 },500);
 }
